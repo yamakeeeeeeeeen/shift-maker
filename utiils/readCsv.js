@@ -64,6 +64,7 @@ var readCsv = function (path) { return __awaiter(void 0, void 0, void 0, functio
                         name: row.name,
                         start_time: (0, convertTime_1.convertTime)(row.start_time),
                         end_time: (0, convertTime_1.convertTime)(row.end_time),
+                        compatibility: row.compatibility,
                     }); })];
         }
     });

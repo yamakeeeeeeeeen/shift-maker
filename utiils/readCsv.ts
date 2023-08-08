@@ -1,19 +1,10 @@
 import * as fs from "fs/promises";
 import { parse } from "csv-parse";
+
 import { convertTime } from "./convertTime";
+import { InputCsvRecord, RecordTimeSlot } from "../types";
 
-type TimeSlot = {
-  name: string;
-  start_time: number;
-  end_time: number;
-};
-type RecordTimeSlot = {
-  name: string;
-  start_time: string;
-  end_time: string;
-};
-
-export const readCsv = async (path: string): Promise<TimeSlot[]> => {
+export const readCsv = async (path: string): Promise<InputCsvRecord[]> => {
   const input = await fs.readFile(path, "utf8");
   const records: RecordTimeSlot[] = await new Promise((resolve, reject) => {
     parse(
@@ -33,5 +24,6 @@ export const readCsv = async (path: string): Promise<TimeSlot[]> => {
     name: row.name,
     start_time: convertTime(row.start_time),
     end_time: convertTime(row.end_time),
+    compatibility: row.compatibility,
   }));
 };

@@ -38,26 +38,28 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createShiftTable = void 0;
 var fs = require("fs/promises");
+var path = require("path");
 var json2csv_1 = require("json2csv");
 var formatTime_1 = require("./formatTime");
 var readCsv_1 = require("./readCsv");
-var path = require("path");
+var getOptimalPairs_1 = require("./getOptimalPairs");
 var createShiftTable = function (paths) { return __awaiter(void 0, void 0, void 0, function () {
-    var outputDir, caregivers, users, pairs, _i, caregivers_1, caregiver, _a, users_1, user, result, selectedCaregivers, selectedUsers, _b, pairs_1, pair, fields, json2csv_2, csv;
-    return __generator(this, function (_c) {
-        switch (_c.label) {
+    var outputDir, caregivers, users, pairs, preferredPairs, _i, caregivers_1, caregiver, _a, users_1, user, pair, resultFromPreferred, resultFromAll, result, fields, json2csv_2, csv;
+    return __generator(this, function (_b) {
+        switch (_b.label) {
             case 0:
                 outputDir = path.dirname(paths.output);
                 return [4 /*yield*/, fs.mkdir(outputDir, { recursive: true })];
             case 1:
-                _c.sent();
+                _b.sent();
                 return [4 /*yield*/, (0, readCsv_1.readCsv)(paths.caregiver)];
             case 2:
-                caregivers = _c.sent();
+                caregivers = _b.sent();
                 return [4 /*yield*/, (0, readCsv_1.readCsv)(paths.user)];
             case 3:
-                users = _c.sent();
+                users = _b.sent();
                 pairs = [];
+                preferredPairs = [];
                 // 介護士とユーザーの可能なペアをすべて作成する
                 for (_i = 0, caregivers_1 = caregivers; _i < caregivers_1.length; _i++) {
                     caregiver = caregivers_1[_i];
@@ -65,37 +67,34 @@ var createShiftTable = function (paths) { return __awaiter(void 0, void 0, void 
                         user = users_1[_a];
                         if (caregiver.start_time <= user.start_time &&
                             caregiver.end_time >= user.end_time) {
-                            pairs.push({
+                            pair = {
                                 caregiver: caregiver.name,
                                 user: user.name,
                                 start_time: (0, formatTime_1.formatTime)(user.start_time),
                                 end_time: (0, formatTime_1.formatTime)(user.end_time),
-                            });
+                            };
+                            // 相性が良い場合はpreferredPairsに追加
+                            if (user.compatibility && user.compatibility.includes(caregiver.name)) {
+                                preferredPairs.push(pair);
+                            }
+                            else {
+                                pairs.push(pair);
+                            }
                         }
                     }
                 }
-                // シフトの開始時間でペアをソートする
-                pairs.sort(function (a, b) { return a.start_time.localeCompare(b.start_time); });
-                result = [];
-                selectedCaregivers = [];
-                selectedUsers = [];
-                for (_b = 0, pairs_1 = pairs; _b < pairs_1.length; _b++) {
-                    pair = pairs_1[_b];
-                    if (selectedCaregivers.includes(pair.caregiver) ||
-                        selectedUsers.includes(pair.user)) {
-                        continue;
-                    }
-                    selectedCaregivers.push(pair.caregiver);
-                    selectedUsers.push(pair.user);
-                    result.push(pair);
-                }
+                resultFromPreferred = (0, getOptimalPairs_1.getOptimalPairs)(preferredPairs);
+                resultFromAll = (0, getOptimalPairs_1.getOptimalPairs)(pairs, resultFromPreferred);
+                result = resultFromAll.length > resultFromPreferred.length
+                    ? resultFromAll
+                    : resultFromPreferred;
                 if (!(result.length > 0)) return [3 /*break*/, 5];
                 fields = ["caregiver", "user", "start_time", "end_time"];
                 json2csv_2 = new json2csv_1.Parser({ fields: fields });
                 csv = json2csv_2.parse(result);
                 return [4 /*yield*/, fs.writeFile(paths.output, csv)];
             case 4:
-                _c.sent();
+                _b.sent();
                 return [3 /*break*/, 6];
             case 5: throw new Error("マッチするシフトが見つかりません。");
             case 6: return [2 /*return*/];

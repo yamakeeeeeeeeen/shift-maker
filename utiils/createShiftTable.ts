@@ -1,16 +1,11 @@
 import * as fs from "fs/promises";
+import * as path from "path";
 import { Parser } from "json2csv";
 
 import { formatTime } from "./formatTime";
 import { readCsv } from "./readCsv";
-import * as path from "path";
-
-type ShiftRecord = {
-  caregiver: string;
-  user: string;
-  start_time: string;
-  end_time: string;
-};
+import { getOptimalPairs } from "./getOptimalPairs";
+import { ShiftRecord } from "../types";
 
 export const createShiftTable = async (paths: {
   caregiver: string;
@@ -25,6 +20,7 @@ export const createShiftTable = async (paths: {
   const users = await readCsv(paths.user);
 
   const pairs: ShiftRecord[] = [];
+  const preferredPairs: ShiftRecord[] = [];
 
   // 介護士とユーザーの可能なペアをすべて作成する
   for (const caregiver of caregivers) {
@@ -33,34 +29,32 @@ export const createShiftTable = async (paths: {
         caregiver.start_time <= user.start_time &&
         caregiver.end_time >= user.end_time
       ) {
-        pairs.push({
+        const pair = {
           caregiver: caregiver.name,
           user: user.name,
           start_time: formatTime(user.start_time),
           end_time: formatTime(user.end_time),
-        });
+        };
+
+        // 相性が良い場合はpreferredPairsに追加
+        if (user.compatibility && user.compatibility.includes(caregiver.name)) {
+          preferredPairs.push(pair);
+        } else {
+          pairs.push(pair);
+        }
       }
     }
   }
 
-  // シフトの開始時間でペアをソートする
-  pairs.sort((a, b) => a.start_time.localeCompare(b.start_time));
+  // 相性が良い組み合わせを優先的に試す
+  const resultFromPreferred = getOptimalPairs(preferredPairs);
+  // 他の組み合わせも試してマッチングの総数を最大化する
+  const resultFromAll = getOptimalPairs(pairs, resultFromPreferred);
 
-  // 最適なペアをフィルタリングする
-  const result: ShiftRecord[] = [];
-  const selectedCaregivers: string[] = [];
-  const selectedUsers: string[] = [];
-  for (const pair of pairs) {
-    if (
-      selectedCaregivers.includes(pair.caregiver) ||
-      selectedUsers.includes(pair.user)
-    ) {
-      continue;
-    }
-    selectedCaregivers.push(pair.caregiver);
-    selectedUsers.push(pair.user);
-    result.push(pair);
-  }
+  const result =
+    resultFromAll.length > resultFromPreferred.length
+      ? resultFromAll
+      : resultFromPreferred;
 
   if (result.length > 0) {
     const fields = ["caregiver", "user", "start_time", "end_time"];
