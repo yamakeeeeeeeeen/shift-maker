@@ -43,43 +43,51 @@ var formatTime_1 = require("./formatTime");
 var readCsv_1 = require("./readCsv");
 var path = require("path");
 var createShiftTable = function (paths) { return __awaiter(void 0, void 0, void 0, function () {
-    var outputDir, caregivers, users, result, _loop_1, _i, caregivers_1, caregiver, fields, json2csv_2, csv;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
+    var outputDir, caregivers, users, pairs, _i, caregivers_1, caregiver, _a, users_1, user, result, selectedCaregivers, selectedUsers, _b, pairs_1, pair, fields, json2csv_2, csv;
+    return __generator(this, function (_c) {
+        switch (_c.label) {
             case 0:
                 outputDir = path.dirname(paths.output);
                 return [4 /*yield*/, fs.mkdir(outputDir, { recursive: true })];
             case 1:
-                _a.sent();
+                _c.sent();
                 return [4 /*yield*/, (0, readCsv_1.readCsv)(paths.caregiver)];
             case 2:
-                caregivers = _a.sent();
+                caregivers = _c.sent();
                 return [4 /*yield*/, (0, readCsv_1.readCsv)(paths.user)];
             case 3:
-                users = _a.sent();
-                result = [];
-                _loop_1 = function (caregiver) {
-                    var matchedUserIndex = -1;
-                    for (var i = 0; i < users.length; i++) {
-                        if (caregiver.start_time <= users[i].start_time &&
-                            caregiver.end_time >= users[i].end_time) {
-                            result.push({
-                                caregiver: caregiver.name,
-                                user: users[i].name,
-                                start_time: (0, formatTime_1.formatTime)(users[i].start_time),
-                                end_time: (0, formatTime_1.formatTime)(users[i].end_time),
-                            });
-                            matchedUserIndex = i;
-                            break;
-                        }
-                    }
-                    if (matchedUserIndex !== -1) {
-                        users = users.filter(function (_, index) { return index !== matchedUserIndex; });
-                    }
-                };
+                users = _c.sent();
+                pairs = [];
+                // 介護士とユーザーの可能なペアをすべて作成する
                 for (_i = 0, caregivers_1 = caregivers; _i < caregivers_1.length; _i++) {
                     caregiver = caregivers_1[_i];
-                    _loop_1(caregiver);
+                    for (_a = 0, users_1 = users; _a < users_1.length; _a++) {
+                        user = users_1[_a];
+                        if (caregiver.start_time <= user.start_time &&
+                            caregiver.end_time >= user.end_time) {
+                            pairs.push({
+                                caregiver: caregiver.name,
+                                user: user.name,
+                                start_time: (0, formatTime_1.formatTime)(user.start_time),
+                                end_time: (0, formatTime_1.formatTime)(user.end_time),
+                            });
+                        }
+                    }
+                }
+                // シフトの開始時間でペアをソートする
+                pairs.sort(function (a, b) { return a.start_time.localeCompare(b.start_time); });
+                result = [];
+                selectedCaregivers = [];
+                selectedUsers = [];
+                for (_b = 0, pairs_1 = pairs; _b < pairs_1.length; _b++) {
+                    pair = pairs_1[_b];
+                    if (selectedCaregivers.includes(pair.caregiver) ||
+                        selectedUsers.includes(pair.user)) {
+                        continue;
+                    }
+                    selectedCaregivers.push(pair.caregiver);
+                    selectedUsers.push(pair.user);
+                    result.push(pair);
                 }
                 if (!(result.length > 0)) return [3 /*break*/, 5];
                 fields = ["caregiver", "user", "start_time", "end_time"];
@@ -87,9 +95,9 @@ var createShiftTable = function (paths) { return __awaiter(void 0, void 0, void 
                 csv = json2csv_2.parse(result);
                 return [4 /*yield*/, fs.writeFile(paths.output, csv)];
             case 4:
-                _a.sent();
+                _c.sent();
                 return [3 /*break*/, 6];
-            case 5: throw new Error("No matching shift found.");
+            case 5: throw new Error("マッチするシフトが見つかりません。");
             case 6: return [2 /*return*/];
         }
     });
