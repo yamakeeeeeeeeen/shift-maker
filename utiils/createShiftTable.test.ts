@@ -68,7 +68,7 @@ describe("createShiftTable", () => {
         await createAndCheckShiftTable("v2", expected);
       });
 
-      it("v3: マッチング数の最大化をしつつ、その中でより相性の良い組み合わせでシフトテーブルが作成されること", async () => {
+      it("v3: 相性が良い人が複数人存在した場合、相性スコアが高い人とマッチングしてシフトテーブルが作成されること", async () => {
         const expected = `
 "caregiver","user","start_time","end_time"
 "Alice","User3","09:00","17:00"
