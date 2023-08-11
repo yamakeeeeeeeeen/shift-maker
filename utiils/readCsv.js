@@ -40,12 +40,21 @@ exports.readCsv = void 0;
 var fs = require("fs/promises");
 var csv_parse_1 = require("csv-parse");
 var convertTime_1 = require("./convertTime");
+var isValidTime = function (time) {
+    var timePattern = /^([0-9]|1[0-9]|2[0-3]):[0-5][0-9]$/;
+    return timePattern.test(time);
+};
 var readCsv = function (path) { return __awaiter(void 0, void 0, void 0, function () {
-    var input, records;
+    var input, records, _i, records_1, record;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, fs.readFile(path, "utf8")];
+            case 0: return [4 /*yield*/, fs.lstat(path)];
             case 1:
+                if (!(_a.sent())) {
+                    throw new Error("\u30D5\u30A1\u30A4\u30EB\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093: ".concat(path));
+                }
+                return [4 /*yield*/, fs.readFile(path, "utf8")];
+            case 2:
                 input = _a.sent();
                 return [4 /*yield*/, new Promise(function (resolve, reject) {
                         (0, csv_parse_1.parse)(input, {
@@ -58,13 +67,18 @@ var readCsv = function (path) { return __awaiter(void 0, void 0, void 0, functio
                                 resolve(output);
                         });
                     })];
-            case 2:
+            case 3:
                 records = _a.sent();
+                for (_i = 0, records_1 = records; _i < records_1.length; _i++) {
+                    record = records_1[_i];
+                    if (!isValidTime(record.start_time) || !isValidTime(record.end_time)) {
+                        throw new Error("CSV\u306B\u4E0D\u6B63\u306A\u30EC\u30B3\u30FC\u30C9\u5F62\u5F0F\u304C\u542B\u307E\u308C\u3066\u3044\u307E\u3059\u3002\u540D\u524D: ".concat(record.name, ", \u958B\u59CB\u6642\u9593: ").concat(record.start_time, ", \u7D42\u4E86\u6642\u9593: ").concat(record.end_time));
+                    }
+                }
                 return [2 /*return*/, records.map(function (row) { return ({
                         name: row.name,
                         start_time: (0, convertTime_1.convertTime)(row.start_time),
                         end_time: (0, convertTime_1.convertTime)(row.end_time),
-                        compatibility: row.compatibility,
                     }); })];
         }
     });

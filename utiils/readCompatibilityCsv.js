@@ -36,38 +36,33 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createShiftTable = void 0;
-var createOutputDirectory_1 = require("./createOutputDirectory");
-var readCsv_1 = require("./readCsv");
-var readCompatibilityCsv_1 = require("./readCompatibilityCsv");
-var generateCompatibilityMap_1 = require("./generateCompatibilityMap");
-var generatePairsWithScore_1 = require("./generatePairsWithScore");
-var backtrackPairing_1 = require("./backtrackPairing");
-var saveSelectedPairsToCsv_1 = require("./saveSelectedPairsToCsv");
-var createShiftTable = function (paths) { return __awaiter(void 0, void 0, void 0, function () {
-    var caregivers, users, compatibilityMap, _a, pairsWithScore, selectedPairs;
-    return __generator(this, function (_b) {
-        switch (_b.label) {
-            case 0: return [4 /*yield*/, (0, createOutputDirectory_1.createOutputDirectory)(paths.output)];
+exports.readCompatibilityCsv = void 0;
+var fs = require("fs/promises");
+var csv_parse_1 = require("csv-parse");
+var readCompatibilityCsv = function (path) { return __awaiter(void 0, void 0, void 0, function () {
+    var input;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, fs.lstat(path)];
             case 1:
-                _b.sent();
-                return [4 /*yield*/, (0, readCsv_1.readCsv)(paths.caregiver)];
+                if (!(_a.sent())) {
+                    throw new Error("\u30D5\u30A1\u30A4\u30EB\u304C\u898B\u3064\u304B\u308A\u307E\u305B\u3093: ".concat(path));
+                }
+                return [4 /*yield*/, fs.readFile(path, "utf8")];
             case 2:
-                caregivers = _b.sent();
-                return [4 /*yield*/, (0, readCsv_1.readCsv)(paths.user)];
-            case 3:
-                users = _b.sent();
-                _a = generateCompatibilityMap_1.generateCompatibilityMap;
-                return [4 /*yield*/, (0, readCompatibilityCsv_1.readCompatibilityCsv)(paths.compatibility)];
-            case 4:
-                compatibilityMap = _a.apply(void 0, [_b.sent()]);
-                pairsWithScore = (0, generatePairsWithScore_1.generatePairsWithScore)(caregivers, users, compatibilityMap);
-                selectedPairs = (0, backtrackPairing_1.backtrackPairing)(pairsWithScore);
-                return [4 /*yield*/, (0, saveSelectedPairsToCsv_1.saveSelectedPairsToCsv)(selectedPairs, paths.output)];
-            case 5:
-                _b.sent();
-                return [2 /*return*/];
+                input = _a.sent();
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        (0, csv_parse_1.parse)(input, {
+                            trim: true,
+                            skip_empty_lines: true,
+                        }, function (err, output) {
+                            if (err)
+                                reject(err);
+                            else
+                                resolve(output);
+                        });
+                    })];
         }
     });
 }); };
-exports.createShiftTable = createShiftTable;
+exports.readCompatibilityCsv = readCompatibilityCsv;

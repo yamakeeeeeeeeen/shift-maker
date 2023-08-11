@@ -6,6 +6,7 @@ var main = function () {
     (0, createShiftTable_1.createShiftTable)({
         caregiver: path_1.INPUT_PATH.CAREGIVER,
         user: path_1.INPUT_PATH.USER,
+        compatibility: path_1.INPUT_PATH.COMPATIBILITY,
         output: path_1.OUTPUT_PATH,
     }).catch(function (error) {
         console.error(error);

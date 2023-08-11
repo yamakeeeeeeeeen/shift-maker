@@ -5,6 +5,7 @@ const main = () => {
   createShiftTable({
     caregiver: INPUT_PATH.CAREGIVER,
     user: INPUT_PATH.USER,
+    compatibility: INPUT_PATH.COMPATIBILITY,
     output: OUTPUT_PATH,
   }).catch((error) => {
     console.error(error);

@@ -5,6 +5,7 @@ var inputDir = "./csv";
 exports.INPUT_PATH = {
     CAREGIVER: "".concat(inputDir, "/caregiver.csv"),
     USER: "".concat(inputDir, "/user.csv"),
+    COMPATIBILITY: "".concat(inputDir, "/compatibility.csv"),
 };
 exports.OUTPUT_DIR = "./output";
 exports.OUTPUT_PATH = "".concat(exports.OUTPUT_DIR, "/shift.csv");
