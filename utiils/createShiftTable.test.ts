@@ -57,14 +57,13 @@ describe("createShiftTable", () => {
     });
 
     describe("介護士とユーザーの相性にパターンがある場合", () => {
-      it("v2: 相性よりもマッチング数の最大化が優先してシフトテーブルが作成されること", async () => {
+      it("v2: マッチング数の最大化よりも相性が優先してシフトテーブルが作成されること", async () => {
         const expected = `
 "caregiver","user","start_time","end_time"
-"Alice","User1","10:00","15:00"
-"Bob","User3","09:00","17:00"
+"Alice","User4","12:00","18:00"
+"Bob","User1","10:00","15:00"
 "Charlie","User2","14:00","20:00"
 "Daniel","User5","11:00","17:00"
-"Eric","User4","12:00","18:00"
 `.trim();
         await createAndCheckShiftTable("v2", expected);
       });
