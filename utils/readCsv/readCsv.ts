@@ -18,6 +18,7 @@ import {
 import * as fs from "fs/promises";
 import { parse as csvParse } from "csv-parse";
 import { parse } from "valibot";
+import { checkFileExist } from "../checkFileExist/checkFileExist";
 
 export const readCompatibilityCsv = async (
   path: string,
@@ -117,14 +118,6 @@ export const readEmployeeCsv = async (
   };
 
   return records.map(convertToEmployeeRecord);
-};
-
-const checkFileExist = async (path: string) => {
-  try {
-    await fs.lstat(path);
-  } catch (error) {
-    throw new Error(`ファイルが見つかりません: ${path}`);
-  }
 };
 
 const stringToBoolean = (value: string): boolean => value === "true";
