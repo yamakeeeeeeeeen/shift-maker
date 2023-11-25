@@ -1,0 +1,4 @@
+id,customer_id,customer_name,start_date,end_date,service_type,greeted,sending,meal,bathing
+1,1,後藤拓磨,00:00,24:00,身・移・身,自宅,自宅,true,true
+2,2,山本真理子,09:00,15:00,身,自宅,自宅,false,false
+3,3,佐々木健一,09:00,20:00,身・移・身,自宅,自宅,true,false

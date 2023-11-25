@@ -1,0 +1,4 @@
+id,name,disability_severity,moving_addition,billable_hours
+1,後藤拓磨,高,true,90
+2,山本真理子,中,false,80
+3,佐々木健一,低,true,85

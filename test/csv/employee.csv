@@ -1,0 +1,11 @@
+id,name,is_night_shift,has_driver_license
+1,田中太郎,true,true
+2,佐藤花子,false,true
+3,鈴木一郎,true,false
+4,高橋純,true,true
+5,伊藤静香,false,false
+6,山田健二,true,true
+7,中村真理,false,true
+8,小林桜,true,false
+9,加藤悠,true,true
+10,渡辺直人,false,true
